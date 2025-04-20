@@ -1,6 +1,3 @@
-
-
-
 // const contractAddress = "0xYourContractAddress"; // Replace with deployed address
 // const contractABI = [ /* Your ABI here */ ];
 
@@ -9,7 +6,7 @@ import { BrowserProvider, Contract } from "ethers"; // Fix import
 
 import MedicalRecord from "./MedicalRecord.json";
 
-const contractAddress = "0x15C69CfD8233f04372d1086e0DC90b30E530E0AB" //"0xYourContractAddress"; // Replace with deployed address
+const contractAddress = "0x2A1462C7D8892865C6E09e8A0Edf508d3918a5cD"; //"0xYourContractAddress"; // Replace with deployed address
 const contractABI = MedicalRecord.abi; //[ /* Your ABI here */ ];
 function App() {
   const [account, setAccount] = useState("");
@@ -26,7 +23,11 @@ function App() {
           const address = await signer.getAddress();
           setAccount(address);
 
-          const contractInstance = new Contract(contractAddress, contractABI, signer);
+          const contractInstance = new Contract(
+            contractAddress,
+            contractABI,
+            signer
+          );
           setContract(contractInstance);
 
           loadRecord(contractInstance);
@@ -43,13 +44,15 @@ function App() {
   const loadRecord = async (contractInstance) => {
     try {
       const data = await contractInstance.getRecord();
+      console.log("data:", data);
       setRecord({
         name: data[0],
         diagnosis: data[1],
         treatment: data[2],
-        doctor: data[3]
+        doctor: data[3],
       });
     } catch (error) {
+      console.log("error-", error);
       console.error("Error fetching record:", error);
     }
   };
@@ -57,7 +60,11 @@ function App() {
   const addRecord = async () => {
     if (!contract) return;
     try {
-      const tx = await contract.addRecord(form.name, form.diagnosis, form.treatment);
+      const tx = await contract.addRecord(
+        form.name,
+        form.diagnosis,
+        form.treatment
+      );
       await tx.wait();
       alert("Record added successfully!");
       loadRecord(contract);
@@ -74,19 +81,42 @@ function App() {
       <h2>Current Record</h2>
       {record.name ? (
         <div>
-          <p><strong>Patient:</strong> {record.name}</p>
-          <p><strong>Diagnosis:</strong> {record.diagnosis}</p>
-          <p><strong>Treatment:</strong> {record.treatment}</p>
-          <p><strong>Doctor:</strong> {record.doctor}</p>
+          <p>
+            <strong>Patient:</strong> {record.name}
+          </p>
+          <p>
+            <strong>Diagnosis:</strong> {record.diagnosis}
+          </p>
+          <p>
+            <strong>Treatment:</strong> {record.treatment}
+          </p>
+          <p>
+            <strong>Doctor:</strong> {record.doctor}
+          </p>
         </div>
       ) : (
         <p>No record found</p>
       )}
 
       <h2>Add New Record</h2>
-      <input type="text" name="name" placeholder="Patient Name" onChange={(e) => setForm({ ...form, name: e.target.value })} />
-      <input type="text" name="diagnosis" placeholder="Diagnosis" onChange={(e) => setForm({ ...form, diagnosis: e.target.value })} />
-      <input type="text" name="treatment" placeholder="Treatment" onChange={(e) => setForm({ ...form, treatment: e.target.value })} />
+      <input
+        type="text"
+        name="name"
+        placeholder="Patient Name"
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
+      />
+      <input
+        type="text"
+        name="diagnosis"
+        placeholder="Diagnosis"
+        onChange={(e) => setForm({ ...form, diagnosis: e.target.value })}
+      />
+      <input
+        type="text"
+        name="treatment"
+        placeholder="Treatment"
+        onChange={(e) => setForm({ ...form, treatment: e.target.value })}
+      />
       <button onClick={addRecord}>Submit</button>
     </div>
   );
